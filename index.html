@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявка на сервер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 50%, #ff4500 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('MINE.jpg') center/cover no-repeat;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-button {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h1 {
+            font-size: 3rem;
+            color: #ff6b00;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-group label .required {
+            color: #ff4500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b00;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group .hint {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .form-group .char-counter {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .form-group .char-counter.error {
+            color: #ff4500;
+            font-weight: 600;
+        }
+
+        .form-group .char-counter.success {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .form-group input.error,
+        .form-group textarea.error {
+            border-color: #ff4500;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #ff6b00, #ff4500);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.3);
+        }
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 0, 0.4);
+        }
+
+        .submit-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+
+        .success-message {
+            display: none;
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            animation: slideDown 0.5s ease;
+        }
+
+        .error-message {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            animation: slideDown 0.5s ease;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 30px 20px;
+            }
+
+            .form-header h1 {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="https://neyrieum.neocities.org/index.html" class="back-button">← Вернуться на главную</a>
+        
+        <div class="form-card">
+            <div class="form-header">
+                <h1>📋 Заявка на сервер</h1>
+                <p>Заполни форму, чтобы присоединиться к нашему комьюнити</p>
+            </div>
+
+            <form id="applicationForm">
+                <div class="form-group">
+                    <label for="minecraft-nick">Твой игровой ник в Minecraft <span class="required">*</span></label>
+                    <input type="text" id="minecraft-nick" name="minecraft-nick" required placeholder="Например: Steve123">
+                    <div class="hint">Укажи точный ник, который используешь в игре</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Твой возраст <span class="required">*</span></label>
+                    <input type="number" id="age" name="age" required min="10" max="99" placeholder="Например: 16">
+                    <div class="hint">Возраст от 10 до 99 лет</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="discord">Твой Discord <span class="required">*</span></label>
+                    <input type="text" id="discord" name="discord" required placeholder="Например: username#1234">
+                    <div class="hint">Нужен для связи и общения с комьюнити</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="about">Расскажи о себе <span class="required">*</span></label>
+                    <textarea id="about" name="about" required placeholder="Напиши немного о себе, своих интересах и увлечениях..."></textarea>
+                    <div class="char-counter" id="about-counter">Минимум 25 символов</div>
+                    <div class="hint">Помоги нам узнать тебя получше!</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">Что ты умеешь делать в Minecraft? <span class="required">*</span></label>
+                    <textarea id="skills" name="skills" required placeholder="Например: строю красивые дома, делаю редстоун механизмы, занимаюсь фермерством..."></textarea>
+                    <div class="char-counter" id="skills-counter">Минимум 25 символов</div>
+                    <div class="hint">Опиши свои навыки и то, чем любишь заниматься в игре</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="plans">Какие у тебя планы на сервере? <span class="required">*</span></label>
+                    <textarea id="plans" name="plans" required placeholder="Например: хочу построить большой город, создать торговую систему, организовать ивенты..."></textarea>
+                    <div class="char-counter" id="plans-counter">Минимум 25 символов</div>
+                    <div class="hint">Расскажи, чем планируешь заниматься на сервере</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience">Играл ли ты раньше на ванильных серверах? <span class="required">*</span></label>
+                    <select id="experience" name="experience" required>
+                        <option value="">Выбери вариант</option>
+                        <option value="yes-much">Да, играл много</option>
+                        <option value="yes-little">Да, но немного</option>
+                        <option value="no">Нет, это будет мой первый опыт</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="server-experience">На каких серверах ты играл? (опционально)</label>
+                    <textarea id="server-experience" name="server-experience" placeholder="Напиши названия серверов или опиши свой опыт игры..."></textarea>
+                    <div class="hint">Это необязательное поле, но нам интересно узнать о твоем опыте</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="why-join">Почему ты хочешь присоединиться именно к нам? <span class="required">*</span></label>
+                    <textarea id="why-join" name="why-join" required placeholder="Расскажи, что привлекло тебя на нашем сервере..."></textarea>
+                    <div class="char-counter" id="why-counter">Минимум 25 символов</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rules">Знаком ли ты с правилами поведения на серверах? <span class="required">*</span></label>
+                    <select id="rules" name="rules" required>
+                        <option value="">Выбери вариант</option>
+                        <option value="yes">Да, знаком и буду их соблюдать</option>
+                        <option value="will-read">Ознакомлюсь перед игрой</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agree" name="agree" required>
+                    <label for="agree">Я согласен с правилами сервера и обязуюсь их соблюдать <span class="required">*</span></label>
+                </div>
+
+                <button type="submit" class="submit-button" id="submitBtn">
+                    <span id="btnText">✉️ Отправить заявку</span>
+                    <div class="loading-spinner" id="spinner"></div>
+                </button>
+
+                <div class="success-message" id="successMessage">
+                    ✅ Заявка успешно отправлена! Администраторы рассмотрят её в ближайшее время.
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    ❌ Произошла ошибка при отправке заявки. Пожалуйста, попробуй еще раз.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1427306598770151435/UA8NFguQaVrIkyMwMje2Jo0jBaqwWBO3w5WssaR2etkxnLSEEq6QS61iOXMju2OFJ6Bk';
+
+        console.log('[zaivka.html] 🚀 Страница загружена');
+        
+        const form = document.getElementById('applicationForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const spinner = document.getElementById('spinner');
+
+        function countCharsWithoutSpaces(text) {
+            return text.replace(/\s/g, '').length;
+        }
+
+        function updateCounter(textareaId, counterId, min) {
+            const textarea = document.getElementById(textareaId);
+            const counter = document.getElementById(counterId);
+            
+            textarea.addEventListener('input', function() {
+                const count = countCharsWithoutSpaces(this.value);
+                
+                if (count === 0) {
+                    counter.textContent = `Минимум ${min} символов`;
+                    counter.classList.remove('success', 'error');
+                    textarea.classList.remove('error');
+                } else if (count < min) {
+                    counter.textContent = `${count} символов (минимум ${min})`;
+                    counter.classList.remove('success');
+                    counter.classList.add('error');
+                    textarea.classList.add('error');
+                } else {
+                    counter.textContent = `${count} символов ✓`;
+                    counter.classList.remove('error');
+                    counter.classList.add('success');
+                    textarea.classList.remove('error');
+                }
+            });
+        }
+
+        updateCounter('about', 'about-counter', 25);
+        updateCounter('skills', 'skills-counter', 25);
+        updateCounter('plans', 'plans-counter', 25);
+        updateCounter('why-join', 'why-counter', 25);
+
+        const ageInput = document.getElementById('age');
+        ageInput.addEventListener('blur', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value)) {
+                this.value = '';
+                return;
+            }
+            if (value < 10) this.value = 10;
+            if (value > 99) this.value = 99;
+        });
+
+        async function sendToDiscord(formData) {
+            const experienceText = {
+                'yes-much': 'Да, играл много',
+                'yes-little': 'Да, но немного',
+                'no': 'Нет, это будет мой первый опыт'
+            };
+
+            const rulesText = {
+                'yes': 'Да, знаком и буду их соблюдать',
+                'will-read': 'Ознакомлюсь перед игрой'
+            };
+
+            const embed = {
+                title: "📋 Новая заявка на сервер!",
+                color: 16747520,
+                fields: [
+                    {
+                        name: "🎮 Minecraft ник",
+                        value: formData.minecraftNick,
+                        inline: true
+                    },
+                    {
+                        name: "👤 Возраст",
+                        value: formData.age,
+                        inline: true
+                    },
+                    {
+                        name: "💬 Discord",
+                        value: formData.discord,
+                        inline: true
+                    },
+                    {
+                        name: "📝 О себе",
+                        value: formData.about.substring(0, 1024)
+                    },
+                    {
+                        name: "⚒️ Навыки в Minecraft",
+                        value: formData.skills.substring(0, 1024)
+                    },
+                    {
+                        name: "🎯 Планы на сервере",
+                        value: formData.plans.substring(0, 1024)
+                    },
+                    {
+                        name: "🎮 Опыт на ванильных серверах",
+                        value: experienceText[formData.experience] || formData.experience,
+                        inline: false
+                    }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: {
+                    text: "Заявка с сайта"
+                }
+            };
+
+            if (formData.serverExperience.trim()) {
+                embed.fields.push({
+                    name: "🖥️ Опыт на других серверах",
+                    value: formData.serverExperience.substring(0, 1024)
+                });
+            }
+
+            embed.fields.push({
+                name: "❓ Почему хочет присоединиться",
+                value: formData.whyJoin.substring(0, 1024)
+            });
+
+            embed.fields.push({
+                name: "📜 Знаком с правилами",
+                value: rulesText[formData.rules] || formData.rules,
+                inline: false
+            });
+
+            const payload = {
+                username: "Заявки на сервер",
+                avatar_url: "https://i.imgur.com/4M34hi2.png",
+                embeds: [embed]
+            };
+
+            const response = await fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка отправки в Discord');
+            }
+
+            return response;
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const aboutCount = countCharsWithoutSpaces(document.getElementById('about').value);
+            const skillsCount = countCharsWithoutSpaces(document.getElementById('skills').value);
+            const plansCount = countCharsWithoutSpaces(document.getElementById('plans').value);
+            const whyCount = countCharsWithoutSpaces(document.getElementById('why-join').value);
+
+            if (aboutCount < 25) {
+                alert('⚠️ "Расскажи о себе" должно содержать минимум 25 символов (без пробелов)');
+                return;
+            }
+            if (skillsCount < 25) {
+                alert('⚠️ "Что ты умеешь делать в Minecraft" должно содержать минимум 25 символов (без пробелов)');
+                return;
+            }
+            if (plansCount < 25) {
+                alert('⚠️ "Какие у тебя планы на сервере" должно содержать минимум 25 символов (без пробелов)');
+                return;
+            }
+            if (whyCount < 25) {
+                alert('⚠️ "Почему ты хочешь присоединиться" должно содержать минимум 25 символов (без пробелов)');
+                return;
+            }
+
+            if (DISCORD_WEBHOOK_URL === 'YOUR_DISCORD_WEBHOOK_URL_HERE') {
+                alert('⚠️ Ошибка: Discord Webhook URL не настроен. Пожалуйста, обратитесь к администратору.');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+            
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            const formData = {
+                minecraftNick: document.getElementById('minecraft-nick').value.trim(),
+                age: document.getElementById('age').value,
+                discord: document.getElementById('discord').value.trim(),
+                about: document.getElementById('about').value,
+                skills: document.getElementById('skills').value,
+                plans: document.getElementById('plans').value,
+                experience: document.getElementById('experience').value,
+                serverExperience: document.getElementById('server-experience').value,
+                whyJoin: document.getElementById('why-join').value,
+                rules: document.getElementById('rules').value
+            };
+
+            try {
+                await sendToDiscord(formData);
+                
+                successMessage.style.display = 'block';
+                form.reset();
+                
+                document.getElementById('about-counter').textContent = 'Минимум 25 символов';
+                document.getElementById('skills-counter').textContent = 'Минимум 25 символов';
+                document.getElementById('plans-counter').textContent = 'Минимум 25 символов';
+                document.getElementById('why-counter').textContent = 'Минимум 25 символов';
+
+                document.querySelectorAll('.char-counter').forEach(counter => {
+                    counter.classList.remove('success', 'error');
+                });
+
+                document.querySelectorAll('input, textarea').forEach(field => {
+                    field.classList.remove('error');
+                });
+
+                successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 7000);
+            } catch (error) {
+                console.error('Ошибка:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 7000);
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+            }
+        });
+
+        form.addEventListener('input', function() {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
